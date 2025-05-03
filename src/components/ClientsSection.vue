@@ -6,11 +6,29 @@
         <p>Empresas que confiaram em nossa expertise para transformar suas marcas</p>
       </div>
       
-      <div class="clients-logos fade-in">
-        <div v-for="(client, index) in clients" :key="index" class="client-logo">
-          <div class="logo-container">
-            <component :is="client.logo" class="client-svg" />
+      <div class="carousel-container fade-in" 
+           @mouseenter="pauseCarousel" 
+           @mouseleave="resumeCarousel">
+        <div class="carousel" :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
+          <div v-for="(group, groupIndex) in clientGroups" :key="groupIndex" class="carousel-slide">
+            <div class="clients-logos">
+              <div v-for="(client, index) in group" :key="`${groupIndex}-${index}`" class="client-logo">
+                <div class="logo-container">
+                  <component :is="client.logo" class="client-svg" />
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+        
+        <div class="carousel-indicators">
+          <button 
+            v-for="(_, index) in clientGroups" 
+            :key="index" 
+            class="carousel-indicator" 
+            :class="{ active: currentSlide === index }"
+            @click="goToSlide(index)">
+          </button>
         </div>
       </div>
       
@@ -33,6 +51,7 @@
 
 <script>
 import { clientLogos } from '../assets/client-logos.js';
+import { onMounted, onBeforeUnmount, ref, computed } from 'vue';
 
 export default {
   name: 'ClientsSection',
@@ -42,9 +61,67 @@ export default {
       default: 'clients'
     }
   },
-  data() {
+  setup() {
+    const clients = ref(clientLogos);
+    const currentSlide = ref(0);
+    const carouselInterval = ref(null);
+    const carouselIntervalTime = 5000; // 5 segundos por slide
+    const itemsPerSlide = 3; // Número de logos por slide
+    
+    // Dividir os clientes em grupos para os slides
+    const clientGroups = computed(() => {
+      const groups = [];
+      for (let i = 0; i < clients.value.length; i += itemsPerSlide) {
+        groups.push(clients.value.slice(i, i + itemsPerSlide));
+      }
+      return groups;
+    });
+    
+    // Iniciar o carousel
+    const startCarousel = () => {
+      carouselInterval.value = setInterval(() => {
+        nextSlide();
+      }, carouselIntervalTime);
+    };
+    
+    // Pausar o carousel
+    const pauseCarousel = () => {
+      clearInterval(carouselInterval.value);
+    };
+    
+    // Retomar o carousel
+    const resumeCarousel = () => {
+      startCarousel();
+    };
+    
+    // Ir para o próximo slide
+    const nextSlide = () => {
+      currentSlide.value = (currentSlide.value + 1) % clientGroups.value.length;
+    };
+    
+    // Ir para um slide específico
+    const goToSlide = (index) => {
+      currentSlide.value = index;
+      // Resetar o intervalo quando o usuário navega manualmente
+      pauseCarousel();
+      resumeCarousel();
+    };
+    
+    onMounted(() => {
+      startCarousel();
+    });
+    
+    onBeforeUnmount(() => {
+      pauseCarousel();
+    });
+    
     return {
-      clients: clientLogos
+      clients,
+      currentSlide,
+      clientGroups,
+      pauseCarousel,
+      resumeCarousel,
+      goToSlide
     };
   }
 };
@@ -67,11 +144,55 @@ export default {
   color: var(--dark-gray);
 }
 
+/* Novo estilo do Carousel */
+.carousel-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 50px;
+}
+
+.carousel {
+  display: flex;
+  transition: transform 1.2s ease-in-out;
+  width: 100%;
+}
+
+.carousel-slide {
+  min-width: 100%;
+  flex-shrink: 0;
+}
+
+.carousel-indicators {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.carousel-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--dark-gray);
+  opacity: 0.3;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.carousel-indicator.active {
+  opacity: 1;
+  background-color: var(--red);
+  transform: scale(1.2);
+}
+
+/* Layout dos logos dos clientes */
 .clients-logos {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 30px;
-  margin-bottom: 50px;
+  padding: 20px;
 }
 
 .client-logo {
@@ -101,12 +222,13 @@ export default {
 .client-svg {
   max-height: 60px;
   max-width: 100%;
-  fill: var(--dark-gray);
-  transition: fill 0.3s ease;
+  /* Aplicar filtro de cinza */
+  filter: grayscale(100%) opacity(0.7);
+  transition: filter 0.5s ease, transform 0.3s ease;
 }
 
-.client-logo:hover .client-svg {
-  fill: var(--red);
+.carousel-container:hover .client-svg {
+  filter: grayscale(0%) opacity(1);
 }
 
 .client-testimonial {
@@ -179,6 +301,17 @@ blockquote {
   
   .diagonal-separator {
     height: 40px;
+  }
+}
+
+@media (max-width: 576px) {
+  .clients-logos {
+    grid-template-columns: 1fr;
+  }
+  
+  .carousel-indicator {
+    width: 10px;
+    height: 10px;
   }
 }
 </style>
