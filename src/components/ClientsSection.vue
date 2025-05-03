@@ -6,11 +6,55 @@
         <p>Empresas que confiaram em nossa expertise para transformar suas marcas</p>
       </div>
       
-      <div class="clients-logos fade-in">
-        <div v-for="(client, index) in clients" :key="index" class="client-logo">
-          <div class="logo-container">
-            <component :is="client.logo" class="client-svg" />
+      <div class="clients-carousel-container fade-in">
+        <div class="carousel-navigation">
+          <button class="carousel-btn prev-btn" @click="scrollCarousel(-1)">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button class="carousel-btn next-btn" @click="scrollCarousel(1)">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+        
+        <div class="clients-carousel" ref="carousel">
+          <div class="carousel-track" :style="{ transform: `translateX(${-currentPage * 100}%)` }">
+            <div class="carousel-slide">
+              <div class="clients-logos">
+                <div v-for="(client, index) in clientsFirstPage" :key="`first-${index}`" class="client-logo">
+                  <div class="logo-container">
+                    <component :is="client.logo" class="client-svg" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="carousel-slide">
+              <div class="clients-logos">
+                <div v-for="(client, index) in clientsSecondPage" :key="`second-${index}`" class="client-logo">
+                  <div class="logo-container">
+                    <component :is="client.logo" class="client-svg" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="carousel-slide">
+              <div class="clients-logos">
+                <div v-for="(client, index) in clientsThirdPage" :key="`third-${index}`" class="client-logo">
+                  <div class="logo-container">
+                    <component :is="client.logo" class="client-svg" />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+        
+        <div class="carousel-indicators">
+          <button 
+            v-for="(_, index) in 3" 
+            :key="index" 
+            :class="['indicator-dot', { active: currentPage === index }]"
+            @click="goToPage(index)"
+          ></button>
         </div>
       </div>
       
@@ -33,6 +77,7 @@
 
 <script>
 import { clientLogos } from '../assets/client-logos.js';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 
 export default {
   name: 'ClientsSection',
@@ -42,9 +87,69 @@ export default {
       default: 'clients'
     }
   },
-  data() {
+  setup() {
+    const carousel = ref(null);
+    const currentPage = ref(0);
+    let autoScrollInterval = null;
+    
+    const chunkedClients = computed(() => {
+      const chunks = [];
+      const clientsPerPage = 6;
+      
+      for (let i = 0; i < clientLogos.length; i += clientsPerPage) {
+        chunks.push(clientLogos.slice(i, i + clientsPerPage));
+      }
+      
+      return chunks;
+    });
+    
+    const clientsFirstPage = computed(() => chunkedClients.value[0] || []);
+    const clientsSecondPage = computed(() => chunkedClients.value[1] || []);
+    const clientsThirdPage = computed(() => chunkedClients.value[2] || []);
+    
+    const totalPages = computed(() => chunkedClients.value.length);
+    
+    const scrollCarousel = (direction) => {
+      currentPage.value = (currentPage.value + direction + totalPages.value) % totalPages.value;
+      resetAutoScroll();
+    };
+    
+    const goToPage = (pageIndex) => {
+      currentPage.value = pageIndex;
+      resetAutoScroll();
+    };
+    
+    const startAutoScroll = () => {
+      autoScrollInterval = setInterval(() => {
+        scrollCarousel(1);
+      }, 5000);
+    };
+    
+    const resetAutoScroll = () => {
+      if (autoScrollInterval) {
+        clearInterval(autoScrollInterval);
+      }
+      startAutoScroll();
+    };
+    
+    onMounted(() => {
+      startAutoScroll();
+    });
+    
+    onBeforeUnmount(() => {
+      if (autoScrollInterval) {
+        clearInterval(autoScrollInterval);
+      }
+    });
+    
     return {
-      clients: clientLogos
+      carousel,
+      currentPage,
+      clientsFirstPage,
+      clientsSecondPage,
+      clientsThirdPage,
+      scrollCarousel,
+      goToPage
     };
   }
 };
@@ -67,13 +172,98 @@ export default {
   color: var(--dark-gray);
 }
 
+/* Carousel Styles */
+.clients-carousel-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding: 0 30px;
+  margin-bottom: 50px;
+}
+
+.carousel-navigation {
+  position: absolute;
+  width: 100%;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.carousel-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--white);
+  border: none;
+  color: var(--black);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  pointer-events: auto;
+  opacity: 0.8;
+}
+
+.carousel-btn:hover {
+  background-color: var(--red);
+  color: var(--white);
+  opacity: 1;
+}
+
+.clients-carousel {
+  width: 100%;
+  overflow: hidden;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+  width: 100%;
+}
+
+.carousel-slide {
+  flex: 0 0 100%;
+  width: 100%;
+}
+
 .clients-logos {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 30px;
-  margin-bottom: 50px;
+  padding: 20px 0;
 }
 
+.carousel-indicators {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.indicator-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--light-gray);
+  border: 2px solid var(--dark-gray);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.indicator-dot.active {
+  background-color: var(--red);
+  border-color: var(--red);
+  transform: scale(1.2);
+}
+
+/* Client Logo Styles */
 .client-logo {
   display: flex;
   justify-content: center;
@@ -83,6 +273,7 @@ export default {
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 120px;
 }
 
 .client-logo:hover {
@@ -91,7 +282,7 @@ export default {
 }
 
 .logo-container {
-  height: 60px;
+  height: 80px;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -99,7 +290,7 @@ export default {
 }
 
 .client-svg {
-  max-height: 60px;
+  max-height: 70px;
   max-width: 100%;
   fill: var(--dark-gray);
   transition: fill 0.3s ease;
@@ -109,6 +300,7 @@ export default {
   fill: var(--red);
 }
 
+/* Testimonial Styles */
 .client-testimonial {
   max-width: 800px;
   margin: 50px auto 0;
@@ -168,6 +360,12 @@ blockquote {
   background: linear-gradient(to bottom left, transparent 49%, var(--red) 50%);
 }
 
+@media (max-width: 992px) {
+  .clients-logos {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .clients-logos {
     grid-template-columns: repeat(2, 1fr);
@@ -179,6 +377,26 @@ blockquote {
   
   .diagonal-separator {
     height: 40px;
+  }
+  
+  .carousel-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  .clients-logos {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  
+  .client-logo {
+    height: 100px;
+  }
+  
+  .logo-container {
+    height: 60px;
   }
 }
 </style>
