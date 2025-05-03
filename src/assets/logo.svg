@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60">
+  <style>
+    .text { font-family: 'Arial Black', Gadget, sans-serif; font-weight: bold; }
+    .red { fill: #E41F1A; }
+    .white { fill: #FFFFFF; }
+  </style>
+  <text x="10" y="40" class="text white" font-size="40">OAS</text>
+  <text x="110" y="25" class="text white" font-size="12">COMUNICAÇÃO</text>
+  <text x="110" y="40" class="text red" font-size="12">DIGITAL</text>
+  <rect x="100" y="15" width="2" height="30" class="red" />
+</svg>
