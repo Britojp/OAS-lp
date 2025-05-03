@@ -58,16 +58,29 @@
         </div>
       </div>
       
-      <div class="client-testimonial fade-in">
-        <div class="quote-icon">
-          <i class="fas fa-quote-left"></i>
+      <div class="testimonials-carousel fade-in">
+        <div class="testimonial-track" :style="{ transform: `translateX(${-currentTestimonial * 100}%)` }">
+          <div v-for="(testimonial, index) in testimonials" :key="index" class="client-testimonial">
+            <div class="quote-icon">
+              <i class="fas fa-quote-left"></i>
+            </div>
+            <blockquote>
+              {{ testimonial.quote }}
+            </blockquote>
+            <div class="testimonial-author">
+              <span class="author-name">{{ testimonial.name }}</span>
+              <span class="author-position">{{ testimonial.position }}</span>
+            </div>
+          </div>
         </div>
-        <blockquote>
-          "A OAS Comunicação Digital transformou completamente nossa presença online. A estratégia implementada aumentou nosso engajamento e, principalmente, nossas vendas."
-        </blockquote>
-        <div class="testimonial-author">
-          <span class="author-name">Cliente Satisfeito</span>
-          <span class="author-position">CEO, Empresa Parceira</span>
+        
+        <div class="testimonial-indicators">
+          <button 
+            v-for="(_, index) in testimonials.length" 
+            :key="index" 
+            :class="['indicator-dot', { active: currentTestimonial === index }]"
+            @click="goToTestimonial(index)"
+          ></button>
         </div>
       </div>
     </div>
@@ -90,8 +103,30 @@ export default {
   setup() {
     const carousel = ref(null);
     const currentPage = ref(0);
+    const currentTestimonial = ref(0);
     let autoScrollInterval = null;
+    let testimonialInterval = null;
     
+    // Dados de depoimentos
+    const testimonials = [
+      {
+        quote: "A OAS Comunicação Digital transformou completamente nossa presença online. A estratégia implementada aumentou nosso engajamento e, principalmente, nossas vendas.",
+        name: "Ricardo Oliveira",
+        position: "CEO, Empresa Inovadora"
+      },
+      {
+        quote: "Desde que começamos a trabalhar com a OAS, nossa visibilidade no mercado aumentou exponencialmente. A equipe é extremamente profissional e os resultados ultrapassaram todas as nossas expectativas.",
+        name: "Maria Santos",
+        position: "Diretora de Marketing, Empresa Visionária"
+      },
+      {
+        quote: "O que mais nos impressionou foi a capacidade da OAS em entender nosso público-alvo. As campanhas desenvolvidas geraram um retorno sobre investimento impressionante e abriram novas oportunidades para nosso negócio.",
+        name: "Carlos Mendes",
+        position: "Fundador, Startup em Crescimento"
+      }
+    ];
+    
+    // Lógica do carrossel de clientes
     const chunkedClients = computed(() => {
       const chunks = [];
       const clientsPerPage = 6;
@@ -119,10 +154,22 @@ export default {
       resetAutoScroll();
     };
     
+    // Lógica do carrossel de depoimentos
+    const goToTestimonial = (index) => {
+      currentTestimonial.value = index;
+      resetTestimonialScroll();
+    };
+    
     const startAutoScroll = () => {
       autoScrollInterval = setInterval(() => {
         scrollCarousel(1);
       }, 5000);
+    };
+    
+    const startTestimonialScroll = () => {
+      testimonialInterval = setInterval(() => {
+        currentTestimonial.value = (currentTestimonial.value + 1) % testimonials.length;
+      }, 7000);
     };
     
     const resetAutoScroll = () => {
@@ -132,24 +179,38 @@ export default {
       startAutoScroll();
     };
     
+    const resetTestimonialScroll = () => {
+      if (testimonialInterval) {
+        clearInterval(testimonialInterval);
+      }
+      startTestimonialScroll();
+    };
+    
     onMounted(() => {
       startAutoScroll();
+      startTestimonialScroll();
     });
     
     onBeforeUnmount(() => {
       if (autoScrollInterval) {
         clearInterval(autoScrollInterval);
       }
+      if (testimonialInterval) {
+        clearInterval(testimonialInterval);
+      }
     });
     
     return {
       carousel,
       currentPage,
+      currentTestimonial,
+      testimonials,
       clientsFirstPage,
       clientsSecondPage,
       clientsThirdPage,
       scrollCarousel,
-      goToPage
+      goToPage,
+      goToTestimonial
     };
   }
 };
@@ -300,10 +361,22 @@ export default {
   fill: var(--red);
 }
 
-/* Testimonial Styles */
-.client-testimonial {
+/* Testimonial Carousel Styles */
+.testimonials-carousel {
+  position: relative;
   max-width: 800px;
   margin: 50px auto 0;
+  overflow: hidden;
+}
+
+.testimonial-track {
+  display: flex;
+  transition: transform 0.6s ease-in-out;
+}
+
+.client-testimonial {
+  flex: 0 0 100%;
+  width: 100%;
   text-align: center;
   position: relative;
   padding: 30px;
@@ -334,6 +407,7 @@ blockquote {
   line-height: 1.7;
   margin-bottom: 20px;
   font-style: italic;
+  min-height: 80px;
 }
 
 .testimonial-author {
@@ -349,6 +423,13 @@ blockquote {
 .author-position {
   color: var(--red);
   font-size: 0.9rem;
+}
+
+.testimonial-indicators {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 10px;
 }
 
 .diagonal-separator {
