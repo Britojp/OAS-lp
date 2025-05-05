@@ -34,7 +34,7 @@
         </div>
         
         <div class="contact-image fade-in">
-          <img src="https://images.unsplash.com/photo-1562577309-4932fdd64cd1" alt="OAS Comunicação Digital Contact">
+          <img src="https://images.unsplash.com/photo-1552581234-26160f608093?w=800&auto=format&fit=crop&q=80" alt="OAS Comunicação Digital Contact">
         </div>
       </div>
     </div>

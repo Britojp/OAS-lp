@@ -30,28 +30,28 @@ export default {
       detailedServices: [
         {
           title: 'Gestão de Redes Sociais & Tráfego Pago',
-          description: 'Estratégia, conteúdo e anúncios para engajamento e conversão. Aumentamos sua visibilidade e construímos conexões relevantes.',
-          image: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7'
+          description: 'Criamos e executamos estratégias integradas que aumentam engajamento, visibilidade e conversões. Nossa abordagem combina conteúdo autêntico e relevante com campanhas de anúncios altamente segmentadas, construindo uma presença digital que gera resultados mensuráveis para sua marca e estabelece relacionamentos duradouros com seu público.',
+          image: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=800&auto=format&fit=crop&q=80'
         },
         {
           title: 'Criação de Sites, Landing Pages & E-commerce',
-          description: 'Desenvolvimento de plataformas otimizadas para SEO que convertem visitantes em clientes e fortalecem sua presença online.',
-          image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0'
+          description: 'Desenvolvemos plataformas digitais que não apenas impressionam visualmente, mas também convertem visitantes em clientes. Combinamos design intuitivo, otimização técnica avançada para SEO e estratégias de UX/UI baseadas em comportamento do usuário para criar experiências digitais que potencializam sua marca e aceleram seu crescimento online.',
+          image: 'https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&auto=format&fit=crop&q=80'
         },
         {
           title: 'Rebranding & Identidade Visual',
-          description: 'Transformamos sua marca para ser forte e inesquecível, com elementos visuais que comunicam sua essência e valores.',
-          image: 'https://images.unsplash.com/photo-1575550596392-20d184e3d9fe'
+          description: 'Transformamos a essência do seu negócio em uma identidade visual memorável e estratégica. Nosso processo aprofundado revela os valores fundamentais da sua marca e os traduz em elementos visuais poderosos que comunicam sua proposta de valor, estabelecem uma conexão emocional com seu público-alvo e destacam sua marca em um mercado competitivo.',
+          image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&auto=format&fit=crop&q=80'
         },
         {
           title: 'Planejamento & Estratégia Digital',
-          description: 'Inteligência de mercado aplicada ao crescimento do seu negócio, com ações baseadas em dados para fortalecer sua presença digital.',
-          image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0'
+          description: 'Analisamos seu mercado, concorrência e oportunidades para construir um roteiro digital personalizado que impulsiona resultados reais. Nossa abordagem estratégica integra inteligência de dados com insights de consumidor para desenvolver ações direcionadas que fortalecem seu posicionamento, ampliam seu alcance e transformam sua presença digital em vantagem competitiva.',
+          image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&fit=crop&q=80'
         },
         {
           title: 'Marketing de Conteúdo & Publicidade',
-          description: 'Conteúdo estratégico e campanhas impactantes para atrair seu público-alvo e gerar conversões significativas.',
-          image: 'https://images.unsplash.com/photo-1595450547833-95af46d7c43a'
+          description: 'Desenvolvemos narrativas poderosas que estabelecem sua autoridade no setor e campanhas publicitárias que atingem as pessoas certas no momento ideal. Combinamos storytelling estratégico com táticas avançadas de segmentação para criar conteúdos e anúncios que não apenas atraem, mas também envolvem e convertem seu público-alvo em todas as etapas da jornada de compra.',
+          image: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&auto=format&fit=crop&q=80'
         }
       ]
     };

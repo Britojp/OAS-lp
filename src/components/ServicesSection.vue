@@ -29,6 +29,7 @@ export default {
     }
   },
   data() {
+   
     return {
       services: [
         {
@@ -50,9 +51,9 @@ export default {
           title: 'Performance',
           icon: 'fas fa-rocket',
           description: 'Otimizar, converter e crescer. Aprimoramos campanhas e estratégias para garantir alto desempenho e retorno sobre o investimento.'
-        }
+        },
       ]
-    };
+    }
   }
 };
 </script>

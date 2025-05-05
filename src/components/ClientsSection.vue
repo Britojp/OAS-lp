@@ -5,33 +5,23 @@
         <h2>Quem experimenta, recomenda</h2>
         <p>Empresas que confiaram em nossa expertise para transformar suas marcas</p>
       </div>
-      
-      <div class="carousel-container fade-in" 
-           @mouseenter="pauseCarousel" 
-           @mouseleave="resumeCarousel">
-        <div class="carousel" :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
-          <div v-for="(group, groupIndex) in clientGroups" :key="groupIndex" class="carousel-slide">
-            <div class="clients-logos">
-              <div v-for="(client, index) in group" :key="`${groupIndex}-${index}`" class="client-logo">
-                <div class="logo-container">
-                  <component :is="client.logo" class="client-svg" />
-                </div>
-              </div>
+
+      <div class="carousel-container fade-in"
+           ref="carouselRef"
+           @mouseenter="isHovering = true"
+           @mouseleave="isHovering = false">
+        <div class="scroll-carousel">
+          <div
+            v-for="(client, index) in duplicatedClients"
+            :key="index"
+            class="client-logo">
+            <div class="logo-container">
+              <img :src="client.logo.render()" :alt="client.name" class="client-svg" />
             </div>
           </div>
         </div>
-        
-        <div class="carousel-indicators">
-          <button 
-            v-for="(_, index) in clientGroups" 
-            :key="index" 
-            class="carousel-indicator" 
-            :class="{ active: currentSlide === index }"
-            @click="goToSlide(index)">
-          </button>
-        </div>
       </div>
-      
+
       <div class="client-testimonial fade-in">
         <div class="quote-icon">
           <i class="fas fa-quote-left"></i>
@@ -51,7 +41,7 @@
 
 <script>
 import { clientLogos } from '../assets/client-logos.js';
-import { onMounted, onBeforeUnmount, ref, computed } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 
 export default {
   name: 'ClientsSection',
@@ -63,65 +53,40 @@ export default {
   },
   setup() {
     const clients = ref(clientLogos);
-    const currentSlide = ref(0);
-    const carouselInterval = ref(null);
-    const carouselIntervalTime = 5000; // 5 segundos por slide
-    const itemsPerSlide = 3; // Número de logos por slide
-    
-    // Dividir os clientes em grupos para os slides
-    const clientGroups = computed(() => {
-      const groups = [];
-      for (let i = 0; i < clients.value.length; i += itemsPerSlide) {
-        groups.push(clients.value.slice(i, i + itemsPerSlide));
+    const duplicatedClients = computed(() => [...clients.value, ...clients.value]);
+
+    const carouselRef = ref(null);
+    const isHovering = ref(false);
+    let animationId = null;
+
+    const scroll = () => {
+      const el = carouselRef.value;
+      if (!el || isHovering.value) {
+        animationId = requestAnimationFrame(scroll);
+        return;
       }
-      return groups;
-    });
-    
-    // Iniciar o carousel
-    const startCarousel = () => {
-      carouselInterval.value = setInterval(() => {
-        nextSlide();
-      }, carouselIntervalTime);
+
+      el.scrollLeft += 1;
+
+      if (el.scrollLeft >= el.scrollWidth / 2) {
+        el.scrollLeft = 0;
+      }
+
+      animationId = requestAnimationFrame(scroll);
     };
-    
-    // Pausar o carousel
-    const pauseCarousel = () => {
-      clearInterval(carouselInterval.value);
-    };
-    
-    // Retomar o carousel
-    const resumeCarousel = () => {
-      startCarousel();
-    };
-    
-    // Ir para o próximo slide
-    const nextSlide = () => {
-      currentSlide.value = (currentSlide.value + 1) % clientGroups.value.length;
-    };
-    
-    // Ir para um slide específico
-    const goToSlide = (index) => {
-      currentSlide.value = index;
-      // Resetar o intervalo quando o usuário navega manualmente
-      pauseCarousel();
-      resumeCarousel();
-    };
-    
+
     onMounted(() => {
-      startCarousel();
+      animationId = requestAnimationFrame(scroll);
     });
-    
+
     onBeforeUnmount(() => {
-      pauseCarousel();
+      cancelAnimationFrame(animationId);
     });
-    
+
     return {
-      clients,
-      currentSlide,
-      clientGroups,
-      pauseCarousel,
-      resumeCarousel,
-      goToSlide
+      duplicatedClients,
+      carouselRef,
+      isHovering
     };
   }
 };
@@ -144,61 +109,22 @@ export default {
   color: var(--dark-gray);
 }
 
-/* Novo estilo do Carousel */
 .carousel-container {
   position: relative;
   width: 100%;
   overflow: hidden;
   margin-bottom: 50px;
+  white-space: nowrap;
 }
 
-.carousel {
+.scroll-carousel {
   display: flex;
-  transition: transform 1.2s ease-in-out;
-  width: 100%;
-}
-
-.carousel-slide {
-  min-width: 100%;
-  flex-shrink: 0;
-}
-
-.carousel-indicators {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-  gap: 10px;
-}
-
-.carousel-indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: var(--dark-gray);
-  opacity: 0.3;
-  cursor: pointer;
-  border: none;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.carousel-indicator.active {
-  opacity: 1;
-  background-color: var(--red);
-  transform: scale(1.2);
-}
-
-/* Layout dos logos dos clientes */
-.clients-logos {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 30px;
-  padding: 20px;
+  width: max-content;
 }
 
 .client-logo {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  flex: 0 0 auto;
+  margin-right: 30px;
   padding: 20px;
   background-color: var(--white);
   border-radius: 10px;
@@ -212,7 +138,7 @@ export default {
 }
 
 .logo-container {
-  height: 60px;
+  height: 100px;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -220,12 +146,12 @@ export default {
 }
 
 .client-svg {
-  max-height: 60px;
+  max-height: 100px;
   max-width: 100%;
-  /* Aplicar filtro de cinza */
   filter: grayscale(100%) opacity(0.7);
   transition: filter 0.5s ease, transform 0.3s ease;
 }
+
 
 .carousel-container:hover .client-svg {
   filter: grayscale(0%) opacity(1);
@@ -291,27 +217,22 @@ blockquote {
 }
 
 @media (max-width: 768px) {
-  .clients-logos {
-    grid-template-columns: repeat(2, 1fr);
+  .client-logo {
+    margin-right: 20px;
   }
-  
+
   blockquote {
     font-size: 1rem;
   }
-  
+
   .diagonal-separator {
     height: 40px;
   }
 }
 
 @media (max-width: 576px) {
-  .clients-logos {
-    grid-template-columns: 1fr;
-  }
-  
-  .carousel-indicator {
-    width: 10px;
-    height: 10px;
+  .client-logo {
+    margin-right: 15px;
   }
 }
 </style>
